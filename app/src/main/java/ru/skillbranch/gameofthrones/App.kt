@@ -6,9 +6,8 @@ import ru.skillbranch.gameofthrones.utils.DatabaseService
 class App : Application() {
 
     override fun onCreate() {
-        instanse = this
+        instance = this
         super.onCreate()
-//        DatabaseService.initDb(this)
     }
 
     override fun onTerminate() {
@@ -16,6 +15,6 @@ class App : Application() {
         DatabaseService.closeDb()
     }
     companion object {
-        lateinit var instanse : App
+        lateinit var instance : App
     }
 }

@@ -20,7 +20,6 @@ data class Character(
     val spouse: String,
     @ColumnInfo(name = "house")
     val houseId: String //rel
-
 )
 
 data class CharacterItem(

@@ -9,9 +9,7 @@ import ru.skillbranch.gameofthrones.data.local.entities.House
 import ru.skillbranch.gameofthrones.data.local.entities.RelativeCharacter
 import java.util.stream.Collectors
 
-@Database(entities = [House::class, Character::class
-//        , CharacterFull::class, CharacterItem::class, RelativeCharacter::class
-    ], version = 1)
+@Database(entities = [House::class, Character::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun houseDao(): HouseDao
@@ -23,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
 object DatabaseService {
      val db : AppDatabase by lazy {
          Room.databaseBuilder(
-             App.instanse.applicationContext,
+             App.instance.applicationContext,
              AppDatabase::class.java, "gof-database"
          ).build()
      }
@@ -36,7 +34,7 @@ object DatabaseService {
 @Dao
 interface HouseDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg houses: House)
 
     @Delete
@@ -51,20 +49,12 @@ interface HouseDao {
     @Query("SELECT * FROM house WHERE id = :id")
     fun get(id: String): House
 
-//    @Query("SELECT * FROM house WHERE name = name")
-//    fun getAllPeopleWithFavoriteColor(name: String): List<: List<House>>
 }
-
-//@Dao
-//interface CharacterItemDao {
-//    @Query("SELECT id, house, name, titles, aliases FROM character WHERE house = :house")
-//    fun getCharactersForHouse(house: String): List<CharacterItem>
-//}
 
 @Dao
 interface CharacterDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg characters: Character)
 
     @Delete

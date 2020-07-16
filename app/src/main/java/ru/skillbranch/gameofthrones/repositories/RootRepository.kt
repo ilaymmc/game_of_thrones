@@ -2,6 +2,7 @@ package ru.skillbranch.gameofthrones.repositories
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ import ru.skillbranch.gameofthrones.utils.DatabaseService
 import ru.skillbranch.gameofthrones.utils.NetworkService
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
 
 const val PAGE_SIZE = 50
 
@@ -206,30 +208,34 @@ object RootRepository {
                 DatabaseService.db.characterDao().get(it)
         }
         val house = DatabaseService.db.houseDao().get(character.houseId)
-        result(
-            CharacterFull(
-                id = character.id,
-                name = character.name,
-                words = house.words,
-                born = character.born,
-                died = character.died,
-                titles = character.titles,
-                aliases = character.aliases,
-                house = character.houseId,
-                father = father?.let {
-                    RelativeCharacter(
-                        id = it.id,
-                        name = it.name,
-                        house = it.houseId)
-                },
-                mother = mother?.let {
-                    RelativeCharacter(
-                        id = it.id,
-                        name = it.name,
-                        house = it.houseId)
-                }
+        house?.let {
+            result(
+                CharacterFull(
+                    id = character.id,
+                    name = character.name,
+                    words = house.words,
+                    born = character.born,
+                    died = character.died,
+                    titles = character.titles,
+                    aliases = character.aliases,
+                    house = character.houseId,
+                    father = father?.let {
+                        RelativeCharacter(
+                            id = it.id,
+                            name = it.name,
+                            house = it.houseId
+                        )
+                    },
+                    mother = mother?.let {
+                        RelativeCharacter(
+                            id = it.id,
+                            name = it.name,
+                            house = it.houseId
+                        )
+                    }
+                )
             )
-        )
+        }
     }
 
     /**
@@ -298,6 +304,47 @@ object RootRepository {
              (house, characters) ->
              insertCharacters(characters)
          }
+    }
+
+    fun findCharacters(houseName: String): LiveData<List<CharacterItem>> {
+        val result = MutableLiveData<List<CharacterItem>>()
+        findCharactersByHouseName(houseName) {
+            result.postValue(it)
+        }
+        return result
+    }
+
+    fun findCharacterFullById(characterId: String): LiveData<CharacterFull> {
+        val result = MutableLiveData<CharacterFull>()
+        findCharacterFullById(characterId) {
+            result.postValue(it)
+        }
+        return result
+    }
+
+    suspend fun needHouseWithCharacters(vararg houseNames: String): List<Pair<HouseRes, List<CharacterRes>>> {
+        val result = mutableListOf<Pair<HouseRes, List<CharacterRes>>>()
+        val houses = getNeedHouses(*houseNames)
+
+        scope.launch {
+            houses.forEach {house ->
+                var i = 0
+                val characters = mutableListOf<CharacterRes>()
+                result.add(house to characters)
+                house.swornMembers.forEach { character ->
+                    launch {
+//                        NetworkService
+//                            .getJSONApi()
+//                            .getCharacter(character.split("/").last().toInt())
+//                            .apply {  houseId = house.id }
+//                            .also { characters.add(it) }
+                    }
+
+                }
+
+            }
+        }.join()
+        return result;
     }
 
 }

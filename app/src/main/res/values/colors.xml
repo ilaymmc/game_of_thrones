@@ -10,7 +10,6 @@
     <color name="ic_launcher_background">@color/color_gray_light</color>
 
 
-
     <color name="stark_primary">#414141</color>
     <color name="stark_accent">#C3C3C1</color>
     <color name="stark_dark">#272727</color>
@@ -38,5 +37,6 @@
     <color name="tyrel_primary">#6C9843</color>
     <color name="tyrel_dark">#44651A</color>
     <color name="tyrel_accent">#C9AE39</color>
+    <color name="black_overlay">#66000000</color>
 
 </resources>
