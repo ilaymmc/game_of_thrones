@@ -20,7 +20,7 @@ data class HouseRes(
     val swornMembers: List<String> = listOf()
 ) {
     val id
-        get() = name.split(" ").dropLastWhile { it != "of" }.dropLast(1)[0]
+        get() = name.split(" ").dropLastWhile { it != "of" }.dropLast(1).last()
     val currentLordId
         get() = lastUrlSegment(currentLord)
     val heirId

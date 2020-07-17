@@ -69,7 +69,7 @@ interface CharacterDao {
     @Query("SELECT * FROM character WHERE id = :id")
     fun get(id: String): Character
 
-    @Query("SELECT id, house, name, titles, aliases FROM character WHERE house = :house")
+    @Query("SELECT id, house, name, titles, aliases FROM character WHERE house = :house ORDER BY name")
     fun getCharactersForHouse(house: String): List<CharacterItem>
 
 //    @Query("SELECT * FROM house WHERE name = name")

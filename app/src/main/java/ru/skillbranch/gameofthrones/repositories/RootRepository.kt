@@ -111,26 +111,25 @@ object RootRepository {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun insertHouses(houses : List<HouseRes>, complete: () -> Unit) = scope.launch {
         try {
-            DatabaseService.db.houseDao().insertAll(
-                *houses.map {
-                    House(
-                        id = it.id,
-                        name = it.name,
-                        region = it.region,
-                        coatOfArms = it.coatOfArms,
-                        words = it.words,
-                        titles = it.titles,
-                        seats = it.seats,
-                        currentLord = it.currentLordId, //rel
-                        heir = it.heirId, //rel
-                        overlord = it.overlord,
-                        founded = it.founded,
-                        founder = it.founderId, //rel
-                        diedOut = it.diedOut,
-                        ancestralWeapons = it.ancestralWeapons
-                    )
-                }.toTypedArray()
-            )
+            val h = houses.map {
+                House(
+                    id = it.id,
+                    name = it.name,
+                    region = it.region,
+                    coatOfArms = it.coatOfArms,
+                    words = it.words,
+                    titles = it.titles,
+                    seats = it.seats,
+                    currentLord = it.currentLordId, //rel
+                    heir = it.heirId, //rel
+                    overlord = it.overlord,
+                    founded = it.founded,
+                    founder = it.founderId, //rel
+                    diedOut = it.diedOut,
+                    ancestralWeapons = it.ancestralWeapons
+                )
+            }.toTypedArray()
+            DatabaseService.db.houseDao().insertAll(*h)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -265,7 +264,7 @@ object RootRepository {
     }
 
     suspend fun getNeedHouses(vararg houseNames: String) : List<HouseRes> = suspendCoroutine { cont ->
-        getNeedHouses {
+        getNeedHouses(*houseNames) {
             cont.resume(it)
         }
     }

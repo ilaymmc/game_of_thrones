@@ -2,12 +2,14 @@ package ru.skillbranch.gameofthrones.ui.houses
 
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_houses.*
 import ru.skillbranch.gameofthrones.ui.MainActivity
@@ -70,10 +72,9 @@ class HousesFragment : Fragment() {
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     val position = tab.position
 
-                    if ((appbar.background as ColorDrawable).color != colors[position]) {
+                    if ((appbar.background as MaterialShapeDrawable).fillColor?.defaultColor != colors[position]) {
                         val rect = Rect()
                         val tabView = tab.view as View
-
                         tabView.getGlobalVisibleRect(rect)
                         animateAppbarReval(position, rect.centerX(), rect.centerY())
                     }

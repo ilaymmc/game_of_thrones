@@ -69,7 +69,7 @@ class CharactersAdapter(private val listener: (CharacterItem) -> Unit) :
                 .also {
                     containerView.tv_aliases.text =
                         if (it.isEmpty()) "Unknown information"
-                        else it.joinToString { " * " }
+                        else it.joinToString(" * ")
                 }
 
             val icon = HouseType.fromString(item.house).icon

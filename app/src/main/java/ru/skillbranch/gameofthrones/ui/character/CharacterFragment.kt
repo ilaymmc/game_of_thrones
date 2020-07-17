@@ -19,10 +19,6 @@ import ru.skillbranch.gameofthrones.ui.MainActivity
 
 class CharacterFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = CharacterFragment()
-    }
-
     private val args: CharacterFragmentArgs by navArgs()
 
     private lateinit var viewModel: CharacterViewModel
@@ -64,7 +60,7 @@ class CharacterFragment : Fragment() {
 
         collapsing_layout.post { collapsing_layout.requestLayout() }
 
-        viewModel.getCharacter().observe(viewLifecycleOwner, Observer<CharacterFull> { character ->
+        viewModel.getCharacter().observe(this, Observer<CharacterFull> { character ->
             if (character == null) return@Observer
 
             val iconColor = requireContext().getColor(houseType.accentColor)
