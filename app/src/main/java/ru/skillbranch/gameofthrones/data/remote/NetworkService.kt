@@ -1,4 +1,4 @@
-package ru.skillbranch.gameofthrones.utils
+package ru.skillbranch.gameofthrones.data.remote
 
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -18,7 +18,8 @@ object NetworkService {
         .build()
 
     fun getJSONApi(): JSONPlaceHolderApi {
-        return retrofit.create(JSONPlaceHolderApi::class.java)
+        return retrofit.create(
+            JSONPlaceHolderApi::class.java)
     }
 }
 

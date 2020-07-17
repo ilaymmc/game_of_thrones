@@ -1,10 +1,11 @@
 package ru.skillbranch.gameofthrones.ui.character
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -50,17 +51,20 @@ class CharacterFragment : Fragment() {
             setDisplayHomeAsUpEnabled(true)
             title = args.title
         }
+        toolbar.setNavigationOnClickListener {
+            rootActivity.onBackPressed()
+        }
 
-        iv_arms.setImageResource(arms)
         with(collapsing_layout) {
             setBackgroundResource(scrim)
             setContentScrimResource(scrim)
             setStatusBarScrimResource(scrimDark)
         }
+        iv_arms.setImageResource(arms)
 
         collapsing_layout.post { collapsing_layout.requestLayout() }
 
-        viewModel.getCharacter().observe(this, Observer<CharacterFull> { character ->
+        viewModel.getCharacter().observe(viewLifecycleOwner, Observer<CharacterFull> { character ->
             if (character == null) return@Observer
 
             val iconColor = requireContext().getColor(houseType.accentColor)

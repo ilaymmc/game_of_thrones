@@ -1,13 +1,22 @@
-package ru.skillbranch.gameofthrones.utils
+package ru.skillbranch.gameofthrones.data.local
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import androidx.room.Transaction
+import androidx.room.Insert
+import androidx.room.Update
+import androidx.room.Query
+import androidx.room.OnConflictStrategy
+import androidx.room.Delete
+import androidx.room.Room
+import androidx.room.RoomDatabase
+
 import ru.skillbranch.gameofthrones.App
 import ru.skillbranch.gameofthrones.data.local.entities.Character
-import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
 import ru.skillbranch.gameofthrones.data.local.entities.House
-import ru.skillbranch.gameofthrones.data.local.entities.RelativeCharacter
-import java.util.stream.Collectors
 
 @Database(entities = [House::class, Character::class], version = 1)
 @TypeConverters(Converters::class)
@@ -35,7 +44,10 @@ object DatabaseService {
 interface HouseDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg houses: House)
+    fun insertAll(vararg houses: House): List<Long>
+
+    @Update
+    fun update(vararg houses: House)
 
     @Delete
     fun delete(house: House)
@@ -49,13 +61,25 @@ interface HouseDao {
     @Query("SELECT * FROM house WHERE id = :id")
     fun get(id: String): House
 
+    @Transaction
+    fun sync(houses: List<House>) {
+        insertAll(*houses.toTypedArray())
+            .mapIndexed { index, l -> if (l == -1L) houses[index] else null }
+            .filterNotNull()
+            .also {
+                if (it.isNotEmpty()) update(*it.toTypedArray())
+            }
+    }
 }
 
 @Dao
 interface CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg characters: Character)
+    fun insertAll(vararg characters: Character): List<Long>
+
+    @Update
+    fun update(vararg character: Character)
 
     @Delete
     fun delete(character: Character)
@@ -72,16 +96,16 @@ interface CharacterDao {
     @Query("SELECT id, house, name, titles, aliases FROM character WHERE house = :house ORDER BY name")
     fun getCharactersForHouse(house: String): List<CharacterItem>
 
-//    @Query("SELECT * FROM house WHERE name = name")
-//    fun getAllPeopleWithFavoriteColor(name: String): List<Characters>
+    @Transaction
+    fun sync(vararg characters: Character) {
+        insertAll(*characters)
+            .mapIndexed { index, l -> if (l == -1L) characters[index] else null}
+            .filterNotNull()
+            .also {
+                if (it.isNotEmpty()) update(*it.toTypedArray())
+            }
+    }
 }
-
-//@Dao
-//interface CharacterFullDao {
-//    @Query("SELECT id, name, words, born, died, titles, aliases, house, father, mother FROM character WHERE id = :id")
-//
-//    fun get(id: String): CharacterFull
-//}
 
 class Converters {
     @TypeConverter

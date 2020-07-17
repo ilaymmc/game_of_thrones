@@ -1,5 +1,6 @@
 package ru.skillbranch.gameofthrones.data.remote.res
 import ru.skillbranch.gameofthrones.utils.lastUrlSegment
+import ru.skillbranch.gameofthrones.data.local.entities.Character
 
 
 data class CharacterRes(
@@ -20,6 +21,22 @@ data class CharacterRes(
     val tvSeries: List<String> = listOf(),
     val playedBy: List<String> = listOf()
 ) {
+    fun toCharacter(): Character =
+        Character(
+            id = id,
+            name = name,
+            gender = gender,
+            culture = culture,
+            born = born,
+            died = died,
+            titles = titles,
+            aliases = aliases,
+            father = fatherId,
+            mother = motherId,
+            spouse = spouse,
+            houseId = houseId
+        )
+
     lateinit var houseId: String
     val id
         get() = lastUrlSegment(url)

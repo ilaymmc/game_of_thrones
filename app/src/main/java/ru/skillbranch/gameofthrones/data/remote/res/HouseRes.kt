@@ -1,4 +1,5 @@
 package ru.skillbranch.gameofthrones.data.remote.res
+import ru.skillbranch.gameofthrones.data.local.entities.House
 import ru.skillbranch.gameofthrones.utils.lastUrlSegment
 
 data class HouseRes(
@@ -27,4 +28,22 @@ data class HouseRes(
         get() = lastUrlSegment(heir)
     val founderId
         get() = lastUrlSegment(founder)
+
+    fun toHouse() =
+        House(
+            id = id,
+            name = name,
+            region = region,
+            coatOfArms = coatOfArms,
+            words = words,
+            titles = titles,
+            seats = seats,
+            currentLord = currentLordId, //rel
+            heir = heirId, //rel
+            overlord = overlord,
+            founded = founded,
+            founder = founderId, //rel
+            diedOut = diedOut,
+            ancestralWeapons = ancestralWeapons
+        )
 }

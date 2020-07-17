@@ -1,6 +1,7 @@
 package ru.skillbranch.gameofthrones.ui
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -9,9 +10,9 @@ import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_houses.*
 import ru.skillbranch.gameofthrones.App
+import ru.skillbranch.gameofthrones.R
 import ru.skillbranch.gameofthrones.ui.main.LoadResult
 import ru.skillbranch.gameofthrones.ui.main.MainViewModel
-import ru.skillbranch.gameofthrones.R
 import ru.skillbranch.gameofthrones.ui.splash.SplashFragmentDirections
 
 class MainActivity : AppCompatActivity() {

@@ -11,10 +11,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import ru.skillbranch.gameofthrones.AppConfig
 import ru.skillbranch.gameofthrones.data.local.entities.*
+import ru.skillbranch.gameofthrones.data.remote.MoshiNetworkService
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
-import ru.skillbranch.gameofthrones.utils.DatabaseService
-import ru.skillbranch.gameofthrones.utils.NetworkService
+import ru.skillbranch.gameofthrones.data.local.DatabaseService
+import ru.skillbranch.gameofthrones.data.local.HouseDao
+import ru.skillbranch.gameofthrones.data.local.HouseDao_Impl
+import ru.skillbranch.gameofthrones.data.remote.NetworkService
+import ru.skillbranch.gameofthrones.repositories.RootRepository.sync
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -112,22 +116,7 @@ object RootRepository {
     fun insertHouses(houses : List<HouseRes>, complete: () -> Unit) = scope.launch {
         try {
             val h = houses.map {
-                House(
-                    id = it.id,
-                    name = it.name,
-                    region = it.region,
-                    coatOfArms = it.coatOfArms,
-                    words = it.words,
-                    titles = it.titles,
-                    seats = it.seats,
-                    currentLord = it.currentLordId, //rel
-                    heir = it.heirId, //rel
-                    overlord = it.overlord,
-                    founded = it.founded,
-                    founder = it.founderId, //rel
-                    diedOut = it.diedOut,
-                    ancestralWeapons = it.ancestralWeapons
-                )
+                it.toHouse()
             }.toTypedArray()
             DatabaseService.db.houseDao().insertAll(*h)
         } catch (e: Exception) {
@@ -146,20 +135,7 @@ object RootRepository {
     fun insertCharacters(characters : List<CharacterRes>, complete: () -> Unit) = scope.launch {
         DatabaseService.db.characterDao().insertAll(
             *characters.map {
-                Character(
-                    id = it.id,
-                    name = it.name,
-                    gender = it.gender,
-                    culture = it.culture,
-                    born = it.born,
-                    died = it.died,
-                    titles = it.titles,
-                    aliases = it.aliases,
-                    father = it.fatherId,
-                    mother = it.motherId,
-                    spouse = it.spouse,
-                    houseId = it.houseId
-                )
+                it.toCharacter()
             }.toTypedArray()
         )
         complete()
@@ -263,10 +239,21 @@ object RootRepository {
             }
     }
 
-    suspend fun getNeedHouses(vararg houseNames: String) : List<HouseRes> = suspendCoroutine { cont ->
-        getNeedHouses(*houseNames) {
-            cont.resume(it)
-        }
+//    suspend fun getNeedHouses(vararg houseNames: String) : List<HouseRes> = suspendCoroutine { cont ->
+//        getNeedHouses(*houseNames) {
+//            cont.resume(it)
+//        }
+//    }
+
+    suspend fun getNeedHouses(vararg houseNames: String) : List<HouseRes> {
+        var page = 1
+        val res = mutableListOf<HouseRes>()
+        do {
+            val p = MoshiNetworkService.api.houses(page++)
+            res.addAll(p)
+        }while (p.isNotEmpty())
+
+        return res.filter { it.name in houseNames }
     }
 
     suspend fun dropDb() : Unit = suspendCoroutine { cont ->
@@ -332,18 +319,35 @@ object RootRepository {
                 result.add(house to characters)
                 house.swornMembers.forEach { character ->
                     launch {
-//                        NetworkService
-//                            .getJSONApi()
-//                            .getCharacter(character.split("/").last().toInt())
-//                            .apply {  houseId = house.id }
-//                            .also { characters.add(it) }
+                        MoshiNetworkService
+                            .api
+                            .character(character.split("/").last())
+                            .apply {  houseId = house.id }
+                            .also { characters.add(it) }
                     }
 
                 }
-
             }
         }.join()
         return result;
+    }
+
+    suspend fun sync() {
+        val pairs = needHouseWithCharacters(*AppConfig.NEED_HOUSES)
+        val initial = mutableListOf<House>() to mutableListOf<Character>()
+
+        val list = pairs.fold(initial) {
+            acc, (houseRes, charactersList) ->
+                val house = houseRes.toHouse()
+                val characters = charactersList.map { it.toCharacter() }
+                acc.also {(hs, ch) ->
+                    hs.add(house)
+                    ch.addAll(characters)
+                }
+        }
+        DatabaseService.db.houseDao().sync(list.first)
+        DatabaseService.db.characterDao().sync(*list.second.toTypedArray())
+            
     }
 
 }

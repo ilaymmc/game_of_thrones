@@ -1,7 +1,7 @@
 package ru.skillbranch.gameofthrones
 
 import android.app.Application
-import ru.skillbranch.gameofthrones.utils.DatabaseService
+import ru.skillbranch.gameofthrones.data.local.DatabaseService
 
 class App : Application() {
 

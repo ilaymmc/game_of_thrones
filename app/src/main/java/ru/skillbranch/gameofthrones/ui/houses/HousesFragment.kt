@@ -72,7 +72,14 @@ class HousesFragment : Fragment() {
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     val position = tab.position
 
-                    if ((appbar.background as MaterialShapeDrawable).fillColor?.defaultColor != colors[position]) {
+                    val color =
+                        if (appbar.background is MaterialShapeDrawable)
+                            (appbar.background as MaterialShapeDrawable).fillColor?.defaultColor
+                        else
+                            (appbar.background as ColorDrawable).color
+
+
+                    if (color != colors[position]) {
                         val rect = Rect()
                         val tabView = tab.view as View
                         tabView.getGlobalVisibleRect(rect)

@@ -23,7 +23,8 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
                     result.postValue(LoadResult.Error("Нет доступа в интернет"))
                     return@launch
                 }
-                repository.updateAll()
+//                repository.updateAll()
+                repository.sync()
                 result.postValue(LoadResult.Success(true))
             } else {
                 delay(5000)
